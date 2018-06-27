@@ -1,0 +1,41 @@
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$min_bid_amount =  0;
+$post = $this->getRequest()->getPostValue();
+if(!empty($post)){
+    extract($post);
+    extract($auction);
+    $min_bid_amount = $starting_price;
+    $model = $objectManager->create('Harman\Auction\Model\Bidder');
+    $collection = $model->getCollection()
+                    ->addFieldToFilter('product_id', array('eq' => $product_id))
+                    ->setOrder('bidder_price','desc');
+    if($collection->count() > 0){
+        $bid = $collection->getFirstItem();
+        $min_bid_amount = $bid->getBidderPrice();
+    }
+}?>
+<script type="text/javascript">
+ min_bid_amount = parseFloat('<?=$min_bid_amount?>');       
+</script>
+<div class="row">
+    <div class="column1">
+       <p><?=__('Open Bid Amount')?>:&nbsp;<strong>$<?=$starting_price?></strong><p>
+        <p><?=__('Next Bid Minimum Amount')?>:&nbsp;<strong>$<?=$min_bid_amount?></strong></p>
+    </div>
+    <div class="column1">
+        <p><?=__('Bid Start Time')?>:&nbsp;<strong><?=$start_auction_time?></strong></p>
+        <p><?=__('Bid End Time')?>:&nbsp;<strong><?=$end_auction_time?></strong></p>
+    </div>
+</div>
+<div style="clear:both;"></div>
+<div class="field qty">
+    <label class="label" for="bid_amount"><span><?= /* @escapeNotVerified */ __('Enter Bid Amount') ?></span></label>
+    <div class="control">
+<?php if($increment_enable){?>
+    <input type="number" name="bid_amount" id="bid_amount" value="<?=$min_bid_amount?>" class="input-text" placeholder="" min="<?=($min_bid_amount+$increment_step)?>" step="<?=$increment_step?>" >
+<?php }else{?>
+        <input type="number" name="bid_amount" id="bid_amount" value="<?=$min_bid_amount?>" class="input-text" placeholder="" min="<?=$min_bid_amount?>" >
+<?php }?>
+</div>
+</div>

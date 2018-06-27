@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../Magento/Backend/etc/menu.xsd">
+    <menu>
+        <add id="Harman_Auction::parent" title="Auction" module="Harman_Auction" sortOrder="100" resource="Harman_Auction::parent"/>
+		<add id="Harman_Auction::auction" title="Harman Auction" module="Harman_Auction" sortOrder="20" parent="Harman_Auction::parent" action="auction/auction" resource="Harman_Auction::auction"/>
+
+    </menu>
+</config>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<page layout="1column" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+ <body>
+     <referenceBlock name="product.info.addtocart">
+        <action method="setTemplate">
+            <argument name="template" xsi:type="string">Harman_Auction::product/view/addtocart.phtml</argument>
+        </action>
+    </referenceBlock>
+    <referenceContainer name="content">
+        <container name="product_viewed_bidder.wrapper" htmlTag="div" htmlClass="container wrapper bidderlist">
+            <block class="Harman\Auction\Block\Product\View\Product"
+                    name="product_viewed_bidder"
+                    template="Harman_Auction::product/view/bidder.phtml"/>
+        </container>
+    </referenceContainer>
+
+ </body>
+</page>

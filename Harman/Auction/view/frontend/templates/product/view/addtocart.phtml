@@ -1,0 +1,267 @@
+<?php $_product = $block->getProduct(); ?>
+
+ <?php 
+ $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$product_id = $_product->getId();
+$model = $objectManager->create('Harman\Auction\Model\Auction');
+
+$current_date = date('Y-m-d H:i:s');
+
+    $collection =  $model->getCollection()
+        ->addFieldToFilter('product_id', array('eq' => $product_id))
+        ->addFieldToFilter('start_auction_time', array('lteq' => $current_date))
+        ->addFieldToFilter('end_auction_time', array('gteq' => $current_date))
+        ->addFieldToFilter('status', array('eq' => Harman\Auction\Model\Status::STATUS_ENABLED))
+        ->setOrder('auction_product_id', 'desc')
+        ->setPageSize(1)
+        ;
+
+    $count = $collection->count(); ?>
+<?php if($count > 0){?>
+    <div id="show_message" style="display: none;">
+    <div role="alert" data-bind="" class="messages">
+        <div class="message-success success message" data-ui-id="message-success">
+            <div>Thank you for bidding on the product.</div>
+        </div>
+    </div>
+    
+    </div>
+    <?php $auction =  $collection->getFirstItem();
+        $auction_product_id = $auction->getAuctionProductId();
+        $starting_price = $auction->getStartingPrice();
+        $min_bid_amount = $starting_price;
+        $enable_increment = $auction->getIncrementEnable();
+        $increment_step = $auction->getIncrementStep();
+
+     ?>
+     <?php 
+        $customer_id = 0;
+        $email_check = 'yes';
+        $customerSession = $objectManager->create("Magento\Customer\Model\Session");
+
+        if($customerSession->isLoggedIn()){
+          $email_check = 'no';
+          $customer_id = $customerSession->getCustomerId();
+        }?>
+     <script type="text/javascript">
+        var min_bid_amount = parseFloat('<?=$min_bid_amount?>');
+        var auction_product_id = '<?=$auction_product_id?>';
+        var product_id = '<?=$product_id?>';       
+        var auction = JSON.parse('<?=json_encode($auction->getData())?>');
+     </script>
+    <div class="box-tocart">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()): ?>
+        <div class="field qty">
+            <label class="label" for="qty"><span><?= /* @escapeNotVerified */ __('Qty') ?>:&nbsp;<?=$block->getProductDefaultQty()?></span></label>
+            <div class="control">                
+                <input type="hidden"
+                   name="qty"
+                   id="qty"
+                   value="<?= /* @escapeNotVerified */ $block->getProductDefaultQty() * 1 ?>"
+                   title="<?= /* @escapeNotVerified */ __('Qty') ?>"
+                   class="input-text qty"
+                   data-validate="<?= $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                   />
+                
+            </div>
+        </div>
+        <?php endif; ?>
+    <div id="product_auction_change_div">
+        <script type="text/javascript">
+         min_bid_amount = parseFloat('<?=$min_bid_amount?>');       
+        </script>
+        <div class="row">
+            <div class="column1">
+               <p><?=__('Open Bid Amount')?>:&nbsp;<strong>$<?=$starting_price?></strong><p>
+                <p><?=__('Next Bid Minimum Amount')?>:&nbsp;<strong>$<?=$min_bid_amount?></strong></p>
+            </div>
+            <div class="column1">
+                <p><?=__('Bid Start Time')?>:&nbsp;<strong><?=$auction->getStartAuctionTime()?></strong></p>
+                <p><?=__('Bid End Time')?>:&nbsp;<strong><?=$auction->getEndAuctionTime()?></strong></p>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+        <div class="field qty">
+            <label class="label" for="bid_amount"><span><?= /* @escapeNotVerified */ __('Enter Bid Amount') ?></span></label>
+            <div class="control">
+        <?php if($enable_increment){?>
+            <input type="number" name="bid_amount" id="bid_amount" value="<?=$min_bid_amount?>" class="input-text" placeholder="" min="<?=($min_bid_amount+$increment_step)?>" step="<?=$increment_step?>" >
+        <?php }else{?>
+                <input type="number" name="bid_amount" id="bid_amount" value="<?=$min_bid_amount?>" class="input-text" placeholder="" min="<?=$min_bid_amount?>" >
+        <?php }?>
+        </div>
+        </div>
+    </div>
+          <div id="bidder_email_div">
+            <label class="label" for="bid_amount"><span><?= /* @escapeNotVerified */ __('Enter Email') ?></span></label>
+            <div class="control">
+                <input type="email" name="bidder_email" id="bidder_email" value="" >
+            </div>
+          </div>
+       
+        <div class="actions">            
+            <button type="button"
+                    title="<?= __('Bid Now') ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button" onclick="addBid();">
+                <span><?= __('Bid Now') ?></span>
+            </button>
+            
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function addBid(){
+        var email_check = '<?=$email_check?>';
+        var customer_id = '<?=$customer_id?>';
+        var bid_amount  = jQuery('#bid_amount').val();
+        bidder_price = parseFloat(bid_amount);
+        if(bidder_price <= min_bid_amount){
+            alert('Enter the bid amount more than minimum bid amount!')
+            jQuery('#bid_amount').focus();
+            return false;
+        }
+        
+        if(email_check == 'yes'){
+            jQuery('#bidder_email_div').show();
+        }
+        var bidder_email = jQuery('#bidder_email').val();
+        if(email_check == 'yes' && bidder_email == ''){
+            alert('Enter bidder email first!');
+            jQuery('#bidder_email').focus();
+            return false;
+        }
+        jQuery.ajax({
+            url:'<?=$block->getUrl('auction/bidder/add');?>',
+            type:'POST',
+            data:{
+                
+                auction_product_id:auction_product_id,
+                product_id:product_id,
+                email_check:email_check,
+                customer_id:customer_id,
+                bidder_email:bidder_email,
+                bidder_price:bidder_price
+            },
+            dataType:'json',
+            showLoader: true,
+            success:function(json){
+                if(json.success == 'OK'){
+                    //alert(json.message);
+                    jQuery('#show_message').show().fadeOut(5000);
+                    if(email_check == 'yes'){
+                        jQuery('#bidder_email').val(bidder_email);
+                    }
+                }
+            }
+        }).done(function (data) {
+            getBid();
+            return true;
+        });        
+    }
+
+    function getBid(){
+        if(product_id){
+            jQuery.ajax({
+                url:'<?=$block->getUrl('auction/bidder/product')?>',
+                type:'post',
+                dataType:'html',
+                data:{
+                    auction:auction,
+                },          
+                success:function(html){
+                    jQuery('#product_auction_change_div').html(html);
+                    getBidders();
+
+                }
+            });
+        }
+    }
+    function getBidders(){
+        if(product_id){
+            jQuery.ajax({
+                url:'<?=$block->getUrl('auction/bidder/Lists/',['id'=> $product_id])?>',
+                dataType:'html',                       
+                success:function(html){
+                    jQuery('.bidderlist').html(html);
+                }
+            });
+        }
+    }
+   getBid();
+   setInterval(getBid, 45000);
+   
+
+</script>
+<style type="text/css">
+/* Create two equal columns that floats next to each other */
+.column1 {
+    float:left;
+    width: 40%;
+    padding: 10px;
+    height: 100px; /* Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row {
+    clear: both;
+}
+#bidder_email_div{
+    display: none;
+}
+
+</style>
+<?php } else{?>    
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php if ($_product->isSaleable()): ?>
+<div class="box-tocart">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()): ?>
+        <div class="field qty">
+            <label class="label" for="qty"><span><?= /* @escapeNotVerified */ __('Qty') ?></span></label>
+            <div class="control">
+                <input type="number"
+                       name="qty"
+                       id="qty"
+                       value="<?= /* @escapeNotVerified */ $block->getProductDefaultQty() * 1 ?>"
+                       title="<?= /* @escapeNotVerified */ __('Qty') ?>"
+                       class="input-text qty"
+                       data-validate="<?= $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                       />
+            </div>
+        </div>
+        <?php endif; ?>
+        <div class="actions">
+            <button type="submit"
+                    title="<?= /* @escapeNotVerified */ $buttonTitle ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button">
+                <span><?= /* @escapeNotVerified */ $buttonTitle ?></span>
+            </button>
+            <?= $block->getChildHtml('', true) ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<?php if ($block->isRedirectToCartEnabled()) : ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/product/view/validation": {
+                "radioCheckboxClosest": ".nested"
+            }
+        }
+    }
+</script>
+<?php else : ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/js/validate-product": {}
+        }
+    }
+</script>
+<?php endif; ?>
+<?php }?>

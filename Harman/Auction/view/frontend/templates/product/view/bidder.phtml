@@ -1,0 +1,27 @@
+<div id="bidderdata">
+<?php $collection = $block->getBidders();?>
+<div class="table-responsive">
+<table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>S.No.</th>
+        <th>Bid Price</th>
+        <th>Email</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php $i =0;?>
+    <?php foreach($collection as $bidder){?>
+      <tr>
+        <td><?=++$i?></td>
+        <td><?=$bidder->getBidderPrice()?></td>
+        <td><?=$bidder->getBidderEmail()?></td>
+        <td><?=$bidder->getStatus()?></td>
+      </tr>
+  	<?php }?>
+     
+    </tbody>
+  </table>
+ </div>
+</div>

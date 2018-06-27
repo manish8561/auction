@@ -9,10 +9,16 @@ $productCollection = $objectManager->create('Magento\Catalog\Model\ResourceModel
 $collection = $productCollection->addAttributeToSelect('*')
             	->addAttributeToFilter('status',\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
 
+$Session = $objectManager->create('Magento\Framework\Session\SessionManager');
+$selectedProduct = $Session->getAuctionProduct();
+
+
 ?>
-	<select id="combobox" name="product_id" data-ui-id="auction-auction-edit-tab-main-fieldset-element-text-starting-price" value="1" title="Starting Price" class=" input-text admin__control-text">
+
+	<select id="combobox" name="product_id" data-ui-id="auction-auction-edit-tab-main-fieldset-element-text-starting-price" value="1" title="Starting Price" class=" input-text admin__control-text" required="required">
 		<?php foreach ($collection as $product){?>
-	    	<option value="<?php echo $product->getId();?>"><?php echo $product->getName();?></option>
+        <option value="">Please Select</option>
+	    	<option value="<?php echo $product->getId();?>" <?php if($product->getId() == $selectedProduct){ echo 'selected="selected"'; }?> ><?php echo $product->getName();?></option>
 		<?php }?>	    
     </select>    
 
@@ -24,6 +30,7 @@ $collection = $productCollection->addAttributeToSelect('*')
   	border:1px solid black;
   	list-style: none;
   	padding: 5px;
+    background: white;
   }
   .custom-combobox-input {
     margin: 0;

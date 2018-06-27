@@ -13,6 +13,7 @@ class MassStatus extends \Magento\Backend\App\Action
      */
     public function execute()
     {
+       
         $itemIds = $this->getRequest()->getParam('auction');
         if (!is_array($itemIds) || empty($itemIds)) {
             $this->messageManager->addError(__('Please select item(s).'));
@@ -21,7 +22,7 @@ class MassStatus extends \Magento\Backend\App\Action
                 $status = (int) $this->getRequest()->getParam('status');
                 foreach ($itemIds as $postId) {
                     $post = $this->_objectManager->get('Harman\Auction\Model\Auction')->load($postId);
-                    $post->setIsActive($status)->save();
+                    $post->setStatus($status)->save();
                 }
                 $this->messageManager->addSuccess(
                     __('A total of %1 record(s) have been updated.', count($itemIds))

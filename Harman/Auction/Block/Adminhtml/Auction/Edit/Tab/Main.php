@@ -48,6 +48,7 @@ class Main extends \Magento\Backend\Block\Widget\Form\Generic implements \Magent
         /* @var $model \Harman\Auction\Model\BlogPosts */
         $model = $this->_coreRegistry->registry('auction');
 
+
         $isElementDisabled = false;
 
         /** @var \Magento\Framework\Data\Form $form */
@@ -61,6 +62,10 @@ class Main extends \Magento\Backend\Block\Widget\Form\Generic implements \Magent
             $fieldset->addField('auction_product_id', 'hidden', ['name' => 'auction_product_id']);
         }
 
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $Session = $objectManager->create('Magento\Framework\Session\SessionManager');
+        $Session->setAuctionProduct($model->getProductId());
+        //$Session->getMyValue();
 		
         $field = $fieldset->addField(
             'product_id',
@@ -203,7 +208,7 @@ class Main extends \Magento\Backend\Block\Widget\Form\Generic implements \Magent
 					
 
         if (!$model->getId()) {
-            $model->setData('is_active', $isElementDisabled ? '0' : '1');
+            $model->setData('status', $isElementDisabled ? '1' : '2');
         }
 
         $form->setValues($model->getData());
@@ -265,4 +270,5 @@ class Main extends \Magento\Backend\Block\Widget\Form\Generic implements \Magent
 					'_blank' => "New Page",
     				);
     }
+
 }

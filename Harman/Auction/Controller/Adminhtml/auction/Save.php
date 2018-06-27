@@ -35,6 +35,7 @@ class Save extends \Magento\Backend\App\Action
             if ($id) {
                 $model->load($id);
                 $model->setCreatedAt(date('Y-m-d H:i:s'));
+                $model->setStatus(1);
             }
   
             $model->setData($data);

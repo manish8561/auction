@@ -41,21 +41,6 @@ class Product extends \Magento\Backend\App\Action
         return true;
     }
 
-    /**
-     * Init actions
-     *
-     * @return \Magento\Backend\Model\View\Result\Page
-     */
-    // protected function _initAction()
-    // {
-    //     // load layout, set active menu and breadcrumbs
-    //     /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
-    //     $resultPage = $this->resultPageFactory->create();
-    //     $resultPage->setActiveMenu('Harman_Auction::Auction')
-    //         ->addBreadcrumb(__('Harman Auction'), __('Harman Auction'))
-    //         ->addBreadcrumb(__('Manage Item'), __('Manage Item'));
-    //     return $resultPage;
-    // }
 
     /**
      * Edit Item

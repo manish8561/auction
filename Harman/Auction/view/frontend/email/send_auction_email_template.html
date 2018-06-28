@@ -1,0 +1,11 @@
+<!--@subject Test Form@-->
+<!--@vars {
+"var data.comment":"Test",
+"var data.email":"Sender Email",
+"var data.name":"Sender Name"
+} @-->
+
+{{trans "Name: %name" name=$data.name}}
+{{trans "Email: %email" email=$data.email}}
+
+{{trans "Test: %test" test=$data.test}}

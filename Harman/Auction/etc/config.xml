@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <default> 
+        <job name="Winbid" instance="Harman\Auction\Cron\Winbid" method="execute"><schedule>*/30 * * * *</schedule>--> <!-- run 30th minutes -->
+        </job>
+    </default>
+</config>
